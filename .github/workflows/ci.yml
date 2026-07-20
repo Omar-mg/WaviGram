@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  lint-and-build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package: [api, web]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm --filter @wagigram/${{ matrix.package }} lint
+
+      - name: TypeCheck
+        run: pnpm --filter @wavigram/${{ matrix.package }} typecheck
+
+      - name: Build
+        run: pnpm --filter @wavigram/${{ matrix.package }} build
+
+  # Optional: Test job (if tests are added later)
+  # test:
+  #   runs-on: ubuntu-latest
+  #   services:
+  #     postgres:
+  #       image: postgres:15-alpine
+  #       env:
+  #         POSTGRES_USER: postgres
+  #         POSTGRES_PASSWORD: postgres
+  #         POSTGRES_DB: wavigram_test
+  #       ports: ['5432:5432']
+  #       options: >-
+  #         --health-cmd "pg_isready -U postgres"
+  #         --health-interval 10s
+  #         --health-timeout 5s
+  #         --health-retries 5
+  #     redis:
+  #       image: redis:7-alpine
+  #       ports: ['6379:6379']
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: '20'
+  #         cache: 'pnpm'
+  #     - name: Install pnpm
+  #       run: npm install -g pnpm
+  #     - name: Install dependencies
+  #       run: pnpm install --frozen-lockfile
+  #     - name: Run tests
+  #       env:
+  #         DB_HOST: localhost
+  #         DB_PORT: 5432
+  #         DB_USERNAME: postgres
+  #         DB_PASSWORD: postgres
+  #         DB_NAME: wavigram_test
+  #         REDIS_HOST: localhost
+  #         REDIS_PORT: 6379
+  #       run: pnpm --filter @wavigram/api test

@@ -1,0 +1,40 @@
+# Stage 1: Build
+FROM node:20-alpine AS builder
+
+# Set working directory
+WORKDIR /app
+
+# Install pnpm
+RUN npm install -g pnpm
+
+# Copy package files
+COPY apps/web/package.json .
+COPY apps/web/pnpm-lock.yaml ./
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+# Copy source code
+COPY apps/web/ .
+
+# Build the application
+RUN pnpm run build
+
+# Stage 2: Serve with nginx (optional) or use node serve
+# We'll use a lightweight static server
+FROM node:20-alpine
+
+# Install serve globally
+RUN npm install -g serve
+
+# Set working directory
+WORKDIR /app
+
+# Copy built assets from builder
+COPY --from=builder /app/dist ./public
+
+# Expose port
+EXPOSE 5173
+
+# Start the server
+CMD ["serve", "-s", "public", "-l", "5173"]
