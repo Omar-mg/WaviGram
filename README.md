@@ -97,10 +97,6 @@ The WaviGram design tokens live in `apps/web/tailwind.config.ts`.
 - [ ] **Phase 8 — Mobile (React Native)**
 - [ ] **Phase 9 — Scale & Infrastructure (K8s, monitoring)**
 
-## 📄 Project Documents
-
-- `WaviGram ChatGpt.txt` — the master project brief
-
 ## 📜 License
 
 Proprietary — © WaviGram. All rights reserved.
